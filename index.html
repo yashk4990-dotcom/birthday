@@ -5,22 +5,52 @@
 <title>Happy Birthday Sakshi</title>
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
 body{
-margin:0;
 height:100vh;
+width:100vw;
 display:flex;
 justify-content:center;
 align-items:center;
 background:linear-gradient(to right,#ff9a9e,#fecfef);
-font-family:Arial;
+font-family:Arial, sans-serif;
 overflow:hidden;
-color:white;
 text-align:center;
-flex-direction:column;
+color:white;
+}
+
+/* Intro Screen */
+#intro{
+position:absolute;
+height:100%;
+width:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(to right,#ff758c,#ff7eb3);
+z-index:5;
+}
+
+#intro button{
+padding:15px 30px;
+font-size:20px;
+border:none;
+border-radius:30px;
+background:white;
+color:#ff4b7d;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* Main Content */
+#main{
+display:none;
+z-index:2;
 }
 
 h1{
-font-size:40px;
+font-size:35px;
 animation: glow 1.5s infinite alternate;
 }
 
@@ -29,47 +59,59 @@ from{text-shadow:0 0 10px white;}
 to{text-shadow:0 0 30px gold;}
 }
 
-button{
-padding:8px 15px;
-border:none;
-border-radius:20px;
-background:white;
-color:#ff4b7d;
-font-weight:bold;
-cursor:pointer;
-margin-top:10px;
+canvas{
+position:absolute;
+top:0;
+left:0;
 }
 
 .balloon{
 position:absolute;
-bottom:-50px;
 font-size:30px;
 animation:float 8s linear infinite;
 }
 
 @keyframes float{
-from{transform:translateY(0);}
-to{transform:translateY(-110vh);}
+from{transform:translateY(100vh);}
+to{transform:translateY(-120vh);}
 }
 </style>
 </head>
 
 <body>
 
+<!-- Intro -->
+<div id="intro">
+<button onclick="startSurprise()">🎁 Tap for Surprise 🎁</button>
+</div>
+
+<!-- Main -->
+<canvas id="fireworks"></canvas>
+
+<div id="main">
 <h1>🎉 Happy Birthday Sakshi 🎉</h1>
 <h2>✨ May All Your Dreams Come True ✨</h2>
 <div style="font-size:50px;">🎂</div>
-<button onclick="playMusic()">Play Music 🎵</button>
+</div>
 
-<audio id="music" src="https://www2.cs.uic.edu/~i101/SoundFiles/HappyBirthday.mid"></audio>
+<audio id="music">
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_8b6b4e3e2c.mp3?filename=happy-birthday-to-you-114198.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-function playMusic(){
+
+/* START SURPRISE */
+function startSurprise(){
+document.getElementById("intro").style.display="none";
+document.getElementById("main").style.display="block";
 document.getElementById("music").play();
+createBalloons();
+startFireworks();
 }
 
-/* Balloons */
-for(let i=0;i<8;i++){
+/* BALLOONS */
+function createBalloons(){
+for(let i=0;i<10;i++){
 let b=document.createElement("div");
 b.className="balloon";
 b.innerHTML="🎈";
@@ -77,8 +119,58 @@ b.style.left=Math.random()*100+"vw";
 b.style.animationDuration=(5+Math.random()*5)+"s";
 document.body.appendChild(b);
 }
+}
+
+/* FIREWORKS */
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+let particles=[];
+
+function createFirework(){
+let x=Math.random()*canvas.width;
+let y=Math.random()*canvas.height/2;
+for(let i=0;i<60;i++){
+particles.push({
+x:x,
+y:y,
+r:2,
+color:`hsl(${Math.random()*360},100%,50%)`,
+sx:(Math.random()-0.5)*6,
+sy:(Math.random()-0.5)*6
+});
+}
+}
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach((p,index)=>{
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle=p.color;
+ctx.fill();
+p.x+=p.sx;
+p.y+=p.sy;
+if(p.r>0.1)p.r-=0.03;
+if(p.r<=0.1)particles.splice(index,1);
+});
+
+requestAnimationFrame(animate);
+}
+
+function startFireworks(){
+setInterval(createFirework,800);
+animate();
+}
 </script>
 
 </body>
 </html>
-
